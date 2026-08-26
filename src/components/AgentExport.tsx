@@ -13,19 +13,19 @@ import {
 } from 'lucide-react';
 import { AgentDefinition } from '../types';
 
-interface AgentMacExportProps {
+interface AgentExportProps {
   agent: AgentDefinition;
   onImportAgent: (agentJson: AgentDefinition) => void;
   isDarkMode: boolean;
 }
 
-export const AgentMacExport: React.FC<AgentMacExportProps> = ({
+export const AgentExport: React.FC<AgentExportProps> = ({
   agent,
   onImportAgent,
   isDarkMode,
 }) => {
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
-  const [selectedFormat, setSelectedFormat] = useState<'sh' | 'applescript' | 'raycast' | 'python' | 'json'>('sh');
+  const [selectedFormat, setSelectedFormat] = useState<'sh' | 'node' | 'raycast' | 'python' | 'json'>('sh');
 
   const handleCopy = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
@@ -36,8 +36,8 @@ export const AgentMacExport: React.FC<AgentMacExportProps> = ({
   // Generate Shell Script (bash / zsh)
   const shellScript = `#!/usr/bin/env zsh
 # ==========================================
-# Agent Mac : ${agent.name}
-# Généré par MacAgent Studio avec Gemini
+# Agent : ${agent.name}
+# Généré par AI Dev & Research Studio
 # ==========================================
 
 # Clé API Gemini (ou export GEMINI_API_KEY="...")
@@ -72,34 +72,47 @@ RESULT=$(echo "$RESPONSE" | grep -o '"text": *"[^"]*"' | sed 's/"text": *"//;s/"
 echo "\\n=== RÉSULTAT ==="
 echo "$RESULT"
 echo "$RESULT" | pbcopy
-echo "\\n✅ Résultat copié dans le presse-papier Mac (pbcopy) !"
+echo "\\n✅ Résultat copié dans le presse-papier (pbcopy) !"
 `;
 
-  // AppleScript snippet
-  const appleScript = `-- AppleScript pour macOS
--- Déclencheur pour : ${agent.name}
+  // Node.js @google/genai script
+  const nodeScript = `/**
+ * Agent : ${agent.name}
+ * Exécution autonome avec le SDK officiel Google GenAI pour Node.js
+ */
+import { GoogleGenAI } from '@google/genai';
 
-set api_key to do shell script "echo $GEMINI_API_KEY"
-if api_key is "" then
-    display dialog "Veuillez définir la variable GEMINI_API_KEY dans votre terminal." buttons {"OK"} default button "OK" with icon caution
-    return
-end if
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  console.error("Erreur: variable d'environnement GEMINI_API_KEY manquante.");
+  process.exit(1);
+}
 
-set user_input to the clipboard
-display dialog "Entrée pour l'Agent (${agent.name}) :" default answer user_input buttons {"Annuler", "Exécuter"} default button "Exécuter" with title "MacAgent Studio"
-set prompt_data to text returned of the result
+const ai = new GoogleGenAI({ apiKey });
 
-set shell_cmd to "curl -s -X POST 'https://generativelanguage.googleapis.com/v1beta/models/${agent.model}:generateContent?key=" & api_key & "' -H 'Content-Type: application/json' -d '{\\"contents\\":[{\\"parts\\":[{\\"text\\":\\"" & prompt_data & "\\"}]}]}'"
+const systemInstruction = \`${agent.systemInstruction.replace(/`/g, '\\`')}\`;
+const input_text = process.argv.slice(2).join(' ') || "Texte de test...";
 
-set res to do shell script shell_cmd
-set the clipboard to res
-display notification "Tâche exécutée et copiée dans le presse-papier !" with title "${agent.name}"
+async function runAgent() {
+  const response = await ai.models.generateContent({
+    model: '${agent.model}',
+    contents: input_text,
+    config: {
+      systemInstruction,
+      temperature: ${agent.temperature},
+    }
+  });
+
+  console.log(response.text);
+}
+
+runAgent().catch(console.error);
 `;
 
   // Python @google/genai script
   const pythonScript = `#!/usr/bin/env python3
 """
-Agent Mac: ${agent.name}
+Agent : ${agent.name}
 Exécution autonome avec le SDK officiel Google GenAI
 """
 import os
@@ -137,7 +150,7 @@ print(response.text)
 # @raycast.schemaVersion 1
 # @raycast.title ${agent.name}
 # @raycast.mode fullOutput
-# @raycast.packageName MacAgent Studio
+# @raycast.packageName AI Dev & Research Studio
 
 # Optional parameters:
 # @raycast.icon ${agent.icon}
@@ -199,10 +212,10 @@ curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/${agent
           </div>
           <div>
             <h1 className="text-sm font-bold text-[#1D1D1F] dark:text-white uppercase tracking-tight">
-              Intégration & Export macOS
+              Intégration & Export SDK
             </h1>
             <p className="text-[11px] text-[#86868B]">
-              Déclenchez cet agent depuis votre Terminal, Raccourcis Apple, Raycast ou vos scripts.
+              Déclenchez cet agent depuis votre Terminal, IDE, CI/CD ou via API.
             </p>
           </div>
         </div>
@@ -231,8 +244,8 @@ curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/${agent
         {/* Format Selector Pills */}
         <div className="flex flex-wrap gap-2">
           {[
-            { id: 'sh', label: 'Terminal Mac (zsh / bash)', icon: <Terminal className="w-3.5 h-3.5" /> },
-            { id: 'applescript', label: 'AppleScript / Raccourci Mac', icon: <Apple className="w-3.5 h-3.5" /> },
+            { id: 'sh', label: 'Terminal (zsh / bash)', icon: <Terminal className="w-3.5 h-3.5" /> },
+            { id: 'node', label: 'Node.js (SDK Google GenAI)', icon: <Code className="w-3.5 h-3.5" /> },
             { id: 'raycast', label: 'Script Raycast / Alfred', icon: <Command className="w-3.5 h-3.5" /> },
             { id: 'python', label: 'Python (SDK Google GenAI)', icon: <FileCode className="w-3.5 h-3.5" /> },
             { id: 'json', label: 'Blueprint JSON de l\'Agent', icon: <Code className="w-3.5 h-3.5" /> },
@@ -261,7 +274,7 @@ curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/${agent
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#1D1D1F] dark:text-neutral-200 font-mono">
               {selectedFormat === 'sh' && `run-${agent.id}.sh`}
-              {selectedFormat === 'applescript' && `${agent.id}.applescript`}
+              {selectedFormat === 'node' && `agent_${agent.id}.js`}
               {selectedFormat === 'raycast' && `raycast-${agent.id}.sh`}
               {selectedFormat === 'python' && `agent_${agent.id}.py`}
               {selectedFormat === 'json' && `${agent.id}.agent.json`}
@@ -270,7 +283,7 @@ curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/${agent
             <button
               onClick={() => {
                 const code = selectedFormat === 'sh' ? shellScript
-                  : selectedFormat === 'applescript' ? appleScript
+                  : selectedFormat === 'node' ? nodeScript
                   : selectedFormat === 'raycast' ? raycastScript
                   : selectedFormat === 'python' ? pythonScript
                   : agentJsonString;
@@ -295,31 +308,30 @@ curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/${agent
               : 'bg-[#1D1D1F] border-neutral-800 text-emerald-400'
           }`}>
             {selectedFormat === 'sh' && shellScript}
-            {selectedFormat === 'applescript' && appleScript}
+            {selectedFormat === 'node' && nodeScript}
             {selectedFormat === 'raycast' && raycastScript}
             {selectedFormat === 'python' && pythonScript}
             {selectedFormat === 'json' && agentJsonString}
           </pre>
         </div>
 
-        {/* macOS Shortcuts Instructions */}
+        {/* Integration Instructions */}
         <div className={`p-6 rounded-2xl border shadow-xs space-y-3 ${
           isDarkMode ? 'bg-[#1a1a1f] border-[#2c2c30]' : 'bg-white border-[#D2D2D7]'
         }`}>
           <div className="flex items-center space-x-2">
-            <Apple className="w-4 h-4 text-[#1D1D1F] dark:text-neutral-200" />
+            <Terminal className="w-4 h-4 text-[#1D1D1F] dark:text-neutral-200" />
             <h2 className="text-xs font-bold uppercase tracking-wider text-[#86868B]">
-              Comment intégrer cet Agent dans Raccourcis macOS (Apple Shortcuts) :
+              Comment utiliser cet agent dans vos scripts et IDE :
             </h2>
           </div>
 
           <ol className="list-decimal list-inside space-y-2 text-xs text-[#424245] dark:text-neutral-400">
-            <li>Ouvrez l'application <strong>Raccourcis</strong> sur votre Mac.</li>
-            <li>Créez un nouveau raccourci nommé <strong>"{agent.name}"</strong>.</li>
-            <li>Ajoutez l'action <strong>"Exécuter le script Shell"</strong>.</li>
-            <li>Collez le script shell ci-dessus en configurant votre clé d'API.</li>
-            <li>Ajoutez une action <strong>"Copier dans le presse-papiers"</strong> et <strong>"Afficher la notification"</strong>.</li>
-            <li>Vous pouvez maintenant déclencher votre agent avec <strong>Raycast</strong>, <strong>Spotlight</strong> ou un raccourci clavier global (ex: ⌥ + Espace) !</li>
+            <li>Installez le SDK officiel Google GenAI via <code className="bg-neutral-200 dark:bg-neutral-800 px-1 py-0.5 rounded">npm install @google/genai</code> ou <code className="bg-neutral-200 dark:bg-neutral-800 px-1 py-0.5 rounded">pip install google-genai</code>.</li>
+            <li>Copiez le code d'intégration du langage de votre choix (Python, Node.js ou Shell).</li>
+            <li>Assurez-vous que la variable d'environnement <strong>GEMINI_API_KEY</strong> est bien définie.</li>
+            <li>Passez votre texte, code ou document en entrée du script pour que l'agent génère sa réponse.</li>
+            <li>Vous pouvez ensuite intégrer ce script dans <strong>GitHub Actions</strong>, <strong>VS Code Tasks</strong> ou vos pipelines CI/CD.</li>
           </ol>
         </div>
       </div>

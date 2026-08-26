@@ -43,12 +43,11 @@ export const MacSidebar: React.FC<MacSidebarProps> = ({
 
   const categories: { id: string; label: string; icon: React.ReactNode }[] = [
     { id: 'all', label: 'Tous les agents', icon: <Bot className="w-3.5 h-3.5" /> },
-    { id: 'mac-automation', label: 'Automatisation Mac', icon: <Terminal className="w-3.5 h-3.5" /> },
-    { id: 'writing', label: 'Rédaction & Email', icon: <FileText className="w-3.5 h-3.5" /> },
-    { id: 'coding', label: 'Code & Refactoring', icon: <Code2 className="w-3.5 h-3.5" /> },
-    { id: 'data-analysis', label: 'Données & JSON', icon: <Database className="w-3.5 h-3.5" /> },
-    { id: 'productivity', label: 'Productivité & Tâches', icon: <CheckSquare className="w-3.5 h-3.5" /> },
-    { id: 'research', label: 'Veille & Synthèse', icon: <Search className="w-3.5 h-3.5" /> },
+    { id: 'development', label: 'Code & Développement', icon: <Terminal className="w-3.5 h-3.5" /> },
+    { id: 'code-review', label: 'Revue de Code', icon: <Code2 className="w-3.5 h-3.5" /> },
+    { id: 'data-analysis', label: 'Analyse de Données', icon: <Database className="w-3.5 h-3.5" /> },
+    { id: 'planning', label: 'Planning & Productivité', icon: <CheckSquare className="w-3.5 h-3.5" /> },
+    { id: 'research', label: 'Recherche & Veille', icon: <Search className="w-3.5 h-3.5" /> },
   ];
 
   const filteredAgents = agents.filter((agent) => {

@@ -6,8 +6,7 @@ import { MacSidebar } from './components/MacSidebar';
 import { AgentRunner } from './components/AgentRunner';
 import { AgentBuilder } from './components/AgentBuilder';
 import { AgentPlayground } from './components/AgentPlayground';
-import { AgentBatchRunner } from './components/AgentBatchRunner';
-import { AgentMacExport } from './components/AgentMacExport';
+import { AgentExport } from './components/AgentExport';
 import { AgentLogs } from './components/AgentLogs';
 import { SpotlightModal } from './components/SpotlightModal';
 
@@ -276,7 +275,7 @@ export default function App() {
     <div className={`h-screen w-screen flex flex-col overflow-hidden font-sans antialiased select-none ${
       isDarkMode ? 'bg-[#121215] text-[#f4f4f7]' : 'bg-[#F5F5F7] text-[#1D1D1F]'
     }`}>
-      {/* macOS Title Bar Header */}
+      {/* App Title Bar Header */}
       <MacTitleBar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -334,15 +333,8 @@ export default function App() {
             />
           )}
 
-          {activeTab === 'batch' && (
-            <AgentBatchRunner
-              agent={activeAgent}
-              isDarkMode={isDarkMode}
-            />
-          )}
-
           {activeTab === 'export' && (
-            <AgentMacExport
+            <AgentExport
               agent={activeAgent}
               onImportAgent={handleImportAgent}
               isDarkMode={isDarkMode}

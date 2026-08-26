@@ -95,7 +95,7 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            placeholder="Rechercher un agent Mac, une tâche, un mot-clé..."
+            placeholder="Rechercher un agent, une tâche, un mot-clé..."
             className="w-full bg-transparent text-sm font-medium outline-none placeholder-[#86868B]"
           />
           <button

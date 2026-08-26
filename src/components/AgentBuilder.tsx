@@ -10,9 +10,12 @@ import {
   Code, 
   Layers, 
   Globe, 
-  FileJson
+  FileJson,
+  CheckCircle2,
+  Box,
+  Cpu
 } from 'lucide-react';
-import { AgentCategory, AgentDefinition, AgentInputVariable, InputVariableType, OutputFormat } from '../types';
+import { AgentCategory, AgentDefinition, AgentInputVariable, InputVariableType, OutputFormat, AvailableModelInfo, AgentSkillDefinition } from '../types';
 
 interface AgentBuilderProps {
   agentToEdit?: AgentDefinition | null;
@@ -23,6 +26,23 @@ interface AgentBuilderProps {
 
 const EMOJI_OPTIONS = ['🤖', '⚡', '💻', '📝', '✉️', '📊', '🔍', '🎯', '🍎', '🛠️', '🚀', '🧠', '💼', '📁', '🎨', '🛡️'];
 
+const AVAILABLE_MODELS: AvailableModelInfo[] = [
+  { id: 'gemini-3.7-pro', name: 'Gemini 3.7 Pro', category: 'pro', description: 'Le meilleur pour les tâches complexes', badge: 'Plus intelligent', recommendedFor: 'Code, Raisonnement' },
+  { id: 'gemini-3.7-flash', name: 'Gemini 3.7 Flash', category: 'flagship', description: 'Le modèle par défaut, équilibré', badge: 'Recommandé', recommendedFor: 'Usage général' },
+  { id: 'gemini-3.5-pro', name: 'Gemini 3.5 Pro', category: 'pro', description: 'Modèle pro de génération précédente', badge: 'Pro', recommendedFor: 'Tâches complexes' },
+  { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', category: 'fast', description: 'Rapide et efficace', badge: 'Rapide', recommendedFor: 'Tâches simples' },
+  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', category: 'pro', description: 'Ancienne génération', badge: 'Ancien', recommendedFor: 'Compatibilité' },
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', category: 'fast', description: 'Modèle le plus rapide', badge: 'Ultra Rapide', recommendedFor: 'Basse latence' },
+  { id: 'gemini-2.0-flash-thinking-exp-01-21', name: 'Gemini 2.0 Flash Thinking', category: 'reasoning', description: 'Capacités de raisonnement avancées', badge: 'Expérimental', recommendedFor: 'Résolution de problèmes complexes' },
+];
+
+const AVAILABLE_SKILLS: AgentSkillDefinition[] = [
+  { id: 'search', name: 'Recherche Web', description: 'Permet à l\'agent de rechercher sur internet', icon: 'Globe', category: 'web', systemPromptModifier: 'Tu as accès à internet. Cherche les informations récentes avant de répondre.', requiresSearch: true },
+  { id: 'json_mode', name: 'Mode JSON', description: 'Force une sortie structurée en JSON', icon: 'FileJson', category: 'data', systemPromptModifier: 'Réponds UNIQUEMENT au format JSON valide.', requiresJson: true },
+  { id: 'thinking', name: 'Raisonnement Profond', description: 'Permet à l\'agent de réfléchir avant de répondre', icon: 'Brain', category: 'reasoning', systemPromptModifier: 'Prends le temps de réfléchir étape par étape avant de donner ta réponse.', requiresThinking: true },
+  { id: 'python_exec', name: 'Exécuteur Python', description: 'Permet de générer et exécuter du code Python', icon: 'Code', category: 'code', systemPromptModifier: 'Tu peux écrire des scripts Python pour accomplir la tâche.' },
+];
+
 export const AgentBuilder: React.FC<AgentBuilderProps> = ({
   agentToEdit,
   onSaveAgent,
@@ -32,15 +52,16 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({
   const [name, setName] = useState<string>(agentToEdit?.name || '');
   const [description, setDescription] = useState<string>(agentToEdit?.description || '');
   const [icon, setIcon] = useState<string>(agentToEdit?.icon || '🤖');
-  const [category, setCategory] = useState<AgentCategory>(agentToEdit?.category || 'mac-automation');
+  const [category, setCategory] = useState<AgentCategory>(agentToEdit?.category || 'development');
   const [model, setModel] = useState<string>(agentToEdit?.model || 'gemini-3.7-flash');
   const [temperature, setTemperature] = useState<number>(agentToEdit?.temperature ?? 0.7);
   const [thinkingLevel, setThinkingLevel] = useState<'LOW' | 'HIGH' | 'MINIMAL' | undefined>(agentToEdit?.thinkingLevel || 'LOW');
   const [enableSearch, setEnableSearch] = useState<boolean>(agentToEdit?.enableSearch || false);
   const [jsonResponse, setJsonResponse] = useState<boolean>(agentToEdit?.jsonResponse || false);
   const [outputFormat, setOutputFormat] = useState<OutputFormat>(agentToEdit?.outputFormat || 'markdown');
+  const [skills, setSkills] = useState<string[]>(agentToEdit?.skills || []);
   const [systemInstruction, setSystemInstruction] = useState<string>(
-    agentToEdit?.systemInstruction || 'Tu es un agent IA expert et performant pour Mac.'
+    agentToEdit?.systemInstruction || 'Tu es un assistant IA spécialisé dans la R&D et le développement.'
   );
   const [promptTemplate, setPromptTemplate] = useState<string>(
     agentToEdit?.promptTemplate || 'Effectue la tâche suivante :\n{{input_task}}'
@@ -128,12 +149,13 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({
     const newAgent: AgentDefinition = {
       id: agentToEdit?.id || `agent_${Date.now()}`,
       name: name.trim(),
-      description: description.trim() || 'Agent personnalisé pour Mac',
+      description: description.trim() || 'Agent de développement personnalisé',
       icon,
       category,
       accentColor: 'from-blue-600 to-indigo-600',
       isBuiltIn: false,
       model,
+      skills,
       temperature,
       thinkingLevel,
       enableSearch,
@@ -167,7 +189,7 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({
               {agentToEdit ? `Édition : ${agentToEdit.name}` : 'Studio de Création d\'Agent'}
             </h1>
             <p className="text-[11px] text-[#86868B]">
-              Personnalisez les directives, le comportement et l'interface Mac de l'agent.
+              Personnalisez les directives, le comportement et l'interface de l'agent.
             </p>
           </div>
         </div>
@@ -331,12 +353,11 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({
                   isDarkMode ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-[#F5F5F7] border-[#D2D2D7] text-[#1D1D1F]'
                 }`}
               >
-                <option value="mac-automation">Automatisation Mac & Scripts</option>
-                <option value="writing">Rédaction & Communication</option>
-                <option value="coding">Code & Développement</option>
+                <option value="development">Code & Développement</option>
+                <option value="code-review">Revue de Code</option>
                 <option value="data-analysis">Données & Structuration JSON</option>
-                <option value="productivity">Productivité & Tâches</option>
-                <option value="research">Veille & Synthèse</option>
+                <option value="planning">Planning & Productivité Agile</option>
+                <option value="research">Veille & Synthèse de Doc</option>
               </select>
             </div>
 
@@ -374,9 +395,9 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Model Selection */}
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 sm:col-span-3">
               <label htmlFor="agent-model-select" className="text-[11px] font-bold text-[#424245] dark:text-neutral-300 uppercase tracking-wide">
-                Modèle
+                Modèle Gemini
               </label>
               <select
                 id="agent-model-select"
@@ -386,78 +407,47 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({
                   isDarkMode ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-[#F5F5F7] border-[#D2D2D7] text-[#1D1D1F]'
                 }`}
               >
-                <option value="gemini-3.7-flash">gemini-3.7-flash (Recommandé)</option>
+                {AVAILABLE_MODELS.map(m => (
+                  <option key={m.id} value={m.id}>{m.name} ({m.badge})</option>
+                ))}
               </select>
             </div>
 
-            {/* Temperature Slider */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-bold text-[#424245] dark:text-neutral-300 uppercase tracking-wide">
-                  Température : <span className="font-mono">{temperature}</span>
-                </label>
-                <span className="text-[10px] text-[#86868B]">
-                  {temperature < 0.3 ? 'Précis' : temperature > 0.7 ? 'Créatif' : 'Équilibré'}
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={temperature}
-                onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                className="w-full h-1.5 bg-[#D2D2D7] dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-              />
-            </div>
-
-            {/* Output Format */}
-            <div className="space-y-1.5">
-              <label htmlFor="agent-format-select" className="text-[11px] font-bold text-[#424245] dark:text-neutral-300 uppercase tracking-wide">
-                Format de sortie
+            {/* Skills Selection */}
+            <div className="space-y-2.5 sm:col-span-3 pt-3 border-t border-[#D2D2D7] dark:border-neutral-800">
+              <label className="text-[11px] font-bold text-[#424245] dark:text-neutral-300 uppercase tracking-wide">
+                Compétences (Skills)
               </label>
-              <select
-                id="agent-format-select"
-                value={outputFormat}
-                onChange={(e) => setOutputFormat(e.target.value as OutputFormat)}
-                className={`w-full px-3 py-2 text-sm rounded-lg border outline-none ${
-                  isDarkMode ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-[#F5F5F7] border-[#D2D2D7] text-[#1D1D1F]'
-                }`}
-              >
-                <option value="markdown">Markdown / Texte structuré</option>
-                <option value="code">Code / Script exécutable</option>
-                <option value="json">JSON Structuré</option>
-                <option value="checklist">Checklist / Liste de tâches</option>
-                <option value="table">Tableau comparatif</option>
-              </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {AVAILABLE_SKILLS.map((skill) => (
+                  <label key={skill.id} className={`flex items-start space-x-3 p-3 rounded-xl border cursor-pointer transition-colors ${
+                    skills.includes(skill.id) 
+                      ? isDarkMode ? 'bg-blue-600/20 border-blue-500/50' : 'bg-blue-50 border-blue-200'
+                      : isDarkMode ? 'bg-neutral-900/50 border-neutral-800 hover:border-neutral-700' : 'bg-[#F5F5F7]/50 border-[#D2D2D7] hover:border-neutral-300'
+                  }`}>
+                    <div className="flex-shrink-0 mt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={skills.includes(skill.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) setSkills([...skills, skill.id]);
+                          else setSkills(skills.filter(id => id !== skill.id));
+                        }}
+                        className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
+                      />
+                    </div>
+                    <div>
+                      <div className={`text-xs font-semibold ${skills.includes(skill.id) ? 'text-blue-600 dark:text-blue-400' : 'text-[#1D1D1F] dark:text-neutral-200'}`}>
+                        {skill.name}
+                      </div>
+                      <div className="text-[10px] text-[#86868B] mt-0.5 leading-tight">
+                        {skill.description}
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Toggles */}
-          <div className="flex flex-wrap gap-5 pt-3 border-t border-[#D2D2D7] dark:border-neutral-800 text-xs">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={enableSearch}
-                onChange={(e) => setEnableSearch(e.target.checked)}
-                className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
-              />
-              <span className="text-[#1D1D1F] dark:text-neutral-300 flex items-center gap-1.5 font-medium">
-                <Globe className="w-3.5 h-3.5 text-blue-600" /> Recherche Web Google Search en direct
-              </span>
-            </label>
-
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={jsonResponse}
-                onChange={(e) => setJsonResponse(e.target.checked)}
-                className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
-              />
-              <span className="text-[#1D1D1F] dark:text-neutral-300 flex items-center gap-1.5 font-medium">
-                <FileJson className="w-3.5 h-3.5 text-blue-600" /> Réponse JSON stricte
-              </span>
-            </label>
           </div>
         </div>
 
@@ -469,7 +459,7 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({
             <div className="flex items-center space-x-2">
               <Layers className="w-4 h-4 text-blue-600" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-[#86868B]">
-                3. Variables d'Entrée Mac
+                3. Variables de Contexte (Code, Dépôt, etc.)
               </h2>
             </div>
             <button
@@ -483,7 +473,7 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({
           </div>
 
           <p className="text-xs text-[#86868B]">
-            Chaque variable crée un champ dans l'interface Mac. Utilisez <code className="text-blue-600 font-mono font-bold">{"{{id_variable}}"}</code> dans votre template de prompt ci-dessous.
+            Chaque variable crée un champ dans l'interface de l'agent. Utilisez <code className="text-blue-600 font-mono font-bold">{"{{id_variable}}"}</code> dans votre template de prompt ci-dessous.
           </p>
 
           <div className="space-y-3">

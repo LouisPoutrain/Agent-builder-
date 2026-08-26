@@ -49,7 +49,7 @@ export const AgentLogs: React.FC<AgentLogsProps> = ({
               Historique des Exécutions & Traces
             </h1>
             <p className="text-[11px] text-[#86868B]">
-              {logs.length} exécution{logs.length > 1 ? 's' : ''} enregistrée{logs.length > 1 ? 's' : ''} sur ce Mac.
+              {logs.length} exécution{logs.length > 1 ? 's' : ''} enregistrée{logs.length > 1 ? 's' : ''} en local.
             </p>
           </div>
         </div>

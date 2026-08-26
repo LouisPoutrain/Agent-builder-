@@ -1,10 +1,10 @@
 export type AgentCategory = 
-  | 'mac-automation' 
-  | 'productivity' 
-  | 'coding' 
+  | 'development' 
+  | 'research' 
+  | 'code-review' 
   | 'data-analysis' 
-  | 'writing' 
-  | 'research';
+  | 'planning' 
+  | 'devops';
 
 export type InputVariableType = 'text' | 'textarea' | 'select' | 'code' | 'number';
 
@@ -21,6 +21,27 @@ export interface AgentInputVariable {
 
 export type OutputFormat = 'markdown' | 'code' | 'json' | 'checklist' | 'table';
 
+export interface AvailableModelInfo {
+  id: string;
+  name: string;
+  category: 'flagship' | 'fast' | 'reasoning' | 'pro';
+  description: string;
+  badge: string;
+  recommendedFor: string;
+}
+
+export interface AgentSkillDefinition {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: 'web' | 'code' | 'system' | 'data' | 'reasoning' | 'safety' | 'writing';
+  systemPromptModifier: string;
+  requiresSearch?: boolean;
+  requiresJson?: boolean;
+  requiresThinking?: boolean;
+}
+
 export interface AgentDefinition {
   id: string;
   name: string;
@@ -33,6 +54,7 @@ export interface AgentDefinition {
   promptTemplate: string; // Contains {{variable_id}} placeholders
   inputVariables: AgentInputVariable[];
   model: string;
+  skills?: string[]; // IDs of enabled skills
   temperature: number;
   topP?: number;
   thinkingLevel?: 'LOW' | 'HIGH' | 'MINIMAL';
@@ -71,4 +93,4 @@ export interface ChatMessage {
   durationMs?: number;
 }
 
-export type ActiveTab = 'runner' | 'builder' | 'chat' | 'batch' | 'export' | 'history';
+export type ActiveTab = 'runner' | 'builder' | 'chat' | 'export' | 'history';

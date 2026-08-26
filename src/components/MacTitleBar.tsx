@@ -39,8 +39,7 @@ export const MacTitleBar: React.FC<MacTitleBarProps> = ({
     { id: 'runner', label: 'Exécuter', icon: <Play className="w-3.5 h-3.5" /> },
     { id: 'builder', label: 'Studio Builder', icon: <Sliders className="w-3.5 h-3.5" /> },
     { id: 'chat', label: 'Playground', icon: <MessageSquare className="w-3.5 h-3.5" /> },
-    { id: 'batch', label: 'Lot (Batch)', icon: <Layers className="w-3.5 h-3.5" /> },
-    { id: 'export', label: 'Export Mac', icon: <Share2 className="w-3.5 h-3.5" /> },
+    { id: 'export', label: 'Export', icon: <Share2 className="w-3.5 h-3.5" /> },
     { id: 'history', label: 'Activité', icon: <Clock className="w-3.5 h-3.5" /> },
   ];
 
@@ -50,21 +49,8 @@ export const MacTitleBar: React.FC<MacTitleBarProps> = ({
         ? 'bg-[#18181b]/90 border-[#2c2c30] text-[#f4f4f7]' 
         : 'bg-white/80 border-[#D2D2D7] text-[#1D1D1F]'
     } backdrop-blur-md sticky top-0 z-30`}>
-      {/* Left: Geometric Logo & macOS Breadcrumbs */}
+      {/* Left: Geometric Logo & App Breadcrumbs */}
       <div className="flex items-center space-x-3.5">
-        {/* macOS Traffic Lights */}
-        <div className="flex items-center space-x-1.5 group mr-1">
-          <div className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] flex items-center justify-center cursor-pointer shadow-xs">
-            <span className="opacity-0 group-hover:opacity-100 text-[8px] font-bold text-neutral-900 leading-none">×</span>
-          </div>
-          <div className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] flex items-center justify-center cursor-pointer shadow-xs">
-            <span className="opacity-0 group-hover:opacity-100 text-[8px] font-bold text-neutral-900 leading-none">-</span>
-          </div>
-          <div className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] flex items-center justify-center cursor-pointer shadow-xs">
-            <span className="opacity-0 group-hover:opacity-100 text-[8px] font-bold text-neutral-900 leading-none">+</span>
-          </div>
-        </div>
-
         {/* Geometric Balance Logo */}
         <div className="flex items-center space-x-2.5">
           <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center shadow-xs">
@@ -72,7 +58,7 @@ export const MacTitleBar: React.FC<MacTitleBarProps> = ({
           </div>
           <div className="flex items-baseline space-x-1.5">
             <span className="font-bold text-sm tracking-tight text-[#1D1D1F] dark:text-white">GeminiForge</span>
-            <span className="text-[10px] uppercase font-semibold text-[#86868B] tracking-wider hidden sm:inline">Mac Studio</span>
+            <span className="text-[10px] uppercase font-semibold text-[#86868B] tracking-wider hidden sm:inline">Dev Studio</span>
           </div>
         </div>
 
@@ -88,7 +74,7 @@ export const MacTitleBar: React.FC<MacTitleBarProps> = ({
       </div>
 
       {/* Center: Segmented Navigation Control with Geometric Balance pill styling */}
-      <nav aria-label="Mac navigation" className={`flex items-center p-1 rounded-xl border text-xs ${
+      <nav aria-label="App navigation" className={`flex items-center p-1 rounded-xl border text-xs ${
         isDarkMode 
           ? 'bg-neutral-900/90 border-neutral-800' 
           : 'bg-[#F5F5F7] border-[#D2D2D7]'

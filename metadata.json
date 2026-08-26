@@ -1,0 +1,6 @@
+{
+  "name": "MacAgent Studio",
+  "description": "Créez, testez et déployez des agents IA sur mesure pour vos tâches Mac en utilisant Google Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

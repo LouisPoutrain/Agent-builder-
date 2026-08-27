@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { DEFAULT_AGENTS } from './data/defaultAgents';
-import { ActiveTab, AgentDefinition, ExecutionRecord } from './types';
+import { ActiveTab, AgentDefinition, ExecutionRecord, AgentSkillDefinition, MultiAgentWorkflow } from './types';
 import { MacTitleBar } from './components/MacTitleBar';
 import { MacSidebar } from './components/MacSidebar';
 import { AgentRunner } from './components/AgentRunner';
@@ -9,10 +9,14 @@ import { AgentPlayground } from './components/AgentPlayground';
 import { AgentExport } from './components/AgentExport';
 import { AgentLogs } from './components/AgentLogs';
 import { SpotlightModal } from './components/SpotlightModal';
+import { SkillManager } from './components/SkillManager';
+import { MultiAgentStudio } from './components/MultiAgentStudio';
 
 const AGENTS_STORAGE_KEY = 'mac_agents_studio_v1';
 const LOGS_STORAGE_KEY = 'mac_agents_logs_v1';
 const THEME_STORAGE_KEY = 'mac_agents_theme_v1';
+const SKILLS_STORAGE_KEY = 'mac_agents_skills_v1';
+const WORKFLOWS_STORAGE_KEY = 'mac_agents_workflows_v1';
 
 export default function App() {
   // Theme state
@@ -40,7 +44,6 @@ export default function App() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Merge defaults with custom agents to ensure defaults remain up to date
           const custom = parsed.filter((a: AgentDefinition) => !a.isBuiltIn);
           return [...DEFAULT_AGENTS, ...custom];
         }
@@ -49,6 +52,24 @@ export default function App() {
       console.error('Error loading agents:', e);
     }
     return DEFAULT_AGENTS;
+  });
+
+  // Custom Skills State
+  const [customSkills, setCustomSkills] = useState<AgentSkillDefinition[]>(() => {
+    try {
+      const saved = localStorage.getItem(SKILLS_STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [];
+  });
+
+  // Workflows State
+  const [workflows, setWorkflows] = useState<MultiAgentWorkflow[]>(() => {
+    try {
+      const saved = localStorage.getItem(WORKFLOWS_STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [];
   });
 
   // Active agent state
@@ -97,6 +118,52 @@ export default function App() {
       console.error('Error saving logs:', e);
     }
   }, [logs]);
+
+  // Save skills to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(SKILLS_STORAGE_KEY, JSON.stringify(customSkills));
+    } catch (e) {}
+  }, [customSkills]);
+
+  // Save workflows to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(WORKFLOWS_STORAGE_KEY, JSON.stringify(workflows));
+    } catch (e) {}
+  }, [workflows]);
+
+  const handleSaveSkill = (skill: AgentSkillDefinition) => {
+    setCustomSkills(prev => {
+      const idx = prev.findIndex(s => s.id === skill.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = skill;
+        return copy;
+      }
+      return [...prev, skill];
+    });
+  };
+
+  const handleDeleteSkill = (skillId: string) => {
+    setCustomSkills(prev => prev.filter(s => s.id !== skillId));
+  };
+
+  const handleSaveWorkflow = (workflow: MultiAgentWorkflow) => {
+    setWorkflows(prev => {
+      const idx = prev.findIndex(w => w.id === workflow.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = workflow;
+        return copy;
+      }
+      return [...prev, workflow];
+    });
+  };
+
+  const handleDeleteWorkflow = (workflowId: string) => {
+    setWorkflows(prev => prev.filter(w => w.id !== workflowId));
+  };
 
   // Check health on load
   useEffect(() => {
@@ -319,6 +386,7 @@ export default function App() {
           {activeTab === 'builder' && (
             <AgentBuilder
               agentToEdit={agentToEdit}
+              customSkills={customSkills}
               onSaveAgent={handleSaveAgent}
               onCancel={() => setActiveTab('runner')}
               isDarkMode={isDarkMode}
@@ -329,6 +397,25 @@ export default function App() {
             <AgentPlayground
               agent={activeAgent}
               initialPrompt={chatInitialPrompt}
+              isDarkMode={isDarkMode}
+            />
+          )}
+
+          {activeTab === 'skills' && (
+            <SkillManager
+              customSkills={customSkills}
+              onSaveSkill={handleSaveSkill}
+              onDeleteSkill={handleDeleteSkill}
+              isDarkMode={isDarkMode}
+            />
+          )}
+
+          {activeTab === 'workflows' && (
+            <MultiAgentStudio
+              workflows={workflows}
+              agents={agents}
+              onSaveWorkflow={handleSaveWorkflow}
+              onDeleteWorkflow={handleDeleteWorkflow}
               isDarkMode={isDarkMode}
             />
           )}

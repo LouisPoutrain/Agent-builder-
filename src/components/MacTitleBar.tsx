@@ -10,7 +10,8 @@ import {
   Layers, 
   Share2, 
   Clock,
-  Sparkles
+  Sparkles,
+  Network
 } from 'lucide-react';
 import { ActiveTab, AgentDefinition } from '../types';
 
@@ -37,7 +38,9 @@ export const MacTitleBar: React.FC<MacTitleBarProps> = ({
 }) => {
   const tabs: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
     { id: 'runner', label: 'Exécuter', icon: <Play className="w-3.5 h-3.5" /> },
-    { id: 'builder', label: 'Studio Builder', icon: <Sliders className="w-3.5 h-3.5" /> },
+    { id: 'builder', label: 'Studio', icon: <Sliders className="w-3.5 h-3.5" /> },
+    { id: 'skills', label: 'Compétences', icon: <Sparkles className="w-3.5 h-3.5" /> },
+    { id: 'workflows', label: 'Multi-Agents', icon: <Network className="w-3.5 h-3.5" /> },
     { id: 'chat', label: 'Playground', icon: <MessageSquare className="w-3.5 h-3.5" /> },
     { id: 'export', label: 'Export', icon: <Share2 className="w-3.5 h-3.5" /> },
     { id: 'history', label: 'Activité', icon: <Clock className="w-3.5 h-3.5" /> },

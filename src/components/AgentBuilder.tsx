@@ -19,6 +19,7 @@ import { AgentCategory, AgentDefinition, AgentInputVariable, InputVariableType, 
 
 interface AgentBuilderProps {
   agentToEdit?: AgentDefinition | null;
+  customSkills?: AgentSkillDefinition[];
   onSaveAgent: (agent: AgentDefinition) => void;
   onCancel: () => void;
   isDarkMode: boolean;
@@ -45,6 +46,7 @@ const AVAILABLE_SKILLS: AgentSkillDefinition[] = [
 
 export const AgentBuilder: React.FC<AgentBuilderProps> = ({
   agentToEdit,
+  customSkills = [],
   onSaveAgent,
   onCancel,
   isDarkMode,
@@ -419,7 +421,7 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({
                 Compétences (Skills)
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {AVAILABLE_SKILLS.map((skill) => (
+                {[...AVAILABLE_SKILLS, ...customSkills].map((skill) => (
                   <label key={skill.id} className={`flex items-start space-x-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                     skills.includes(skill.id) 
                       ? isDarkMode ? 'bg-blue-600/20 border-blue-500/50' : 'bg-blue-50 border-blue-200'

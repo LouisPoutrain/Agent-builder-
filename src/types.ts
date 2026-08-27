@@ -35,11 +35,29 @@ export interface AgentSkillDefinition {
   name: string;
   description: string;
   icon: string;
-  category: 'web' | 'code' | 'system' | 'data' | 'reasoning' | 'safety' | 'writing';
+  category: 'web' | 'code' | 'system' | 'data' | 'reasoning' | 'safety' | 'writing' | 'custom';
   systemPromptModifier: string;
   requiresSearch?: boolean;
   requiresJson?: boolean;
   requiresThinking?: boolean;
+  isCustom?: boolean;
+}
+
+export interface WorkflowStep {
+  id: string;
+  agentId: string;
+  name: string;
+  inputMapping: string;
+}
+
+export interface MultiAgentWorkflow {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  steps: WorkflowStep[];
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface AgentDefinition {
@@ -93,4 +111,4 @@ export interface ChatMessage {
   durationMs?: number;
 }
 
-export type ActiveTab = 'runner' | 'builder' | 'chat' | 'export' | 'history';
+export type ActiveTab = 'runner' | 'builder' | 'skills' | 'workflows' | 'chat' | 'export' | 'history';
